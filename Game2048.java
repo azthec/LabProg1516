@@ -26,16 +26,16 @@ class Matriz {
         int z = rgen.nextInt(4);
         int w = rgen.nextInt(4);
 
-        // se os 2 numeros iniciais calharem na mesma posicao, juntam-se e fica o valor 4 nessa posicao. E gerado um novo numero numa posicao aleatoria que toma o valor 2 obrigatoriamente
+        // gerar 2 com 90% de probabilidade e 4 com 10%
         if(x==z && y ==w) {
-            matriz[x][y] = 4;
             while(x==z && y == w) {
                 y = rgen.nextInt(4);
                 w = rgen.nextInt(4);
             }
-            matriz[z][w] = 2;
+            matriz[z][w] = (Math.random() >= .9 ? 4 : 2);
         } else {
-            matriz[x][y] = matriz[z][w] = 2;
+            matriz[x][y] = (Math.random() >= .9 ? 4 : 2);
+	    matriz[z][w] = (Math.random() >= .9 ? 4 : 2);
         }
     }
 
@@ -136,6 +136,39 @@ class Matriz {
 			  board+=Integer.toString(matriz[i][j]);
 	  return board;
   }
+
+    public boolean isOver() {
+	return isFull() && !isMoveAllowed();
+    }
+
+    //ineficiente?
+    private boolean isFull() {
+	for(int i= 0; i <= 3; i++) {
+	    for(int j= 0; j<=3; j++) {
+		if(matriz[i][j]==0)return false;
+	    }
+	}
+	return true;
+    }
+
+    //ineficiente?
+
+    private boolean isMoveAllowed() {
+	//verificar na vertical
+	for(int i =0; i<3; i++) {
+	    for(int j=0; j<2; j++) {
+		int jj = j+1;
+		if(matriz[i][j] == matriz[i][jj]) return true;
+	    }
+	}
+	//verificar na horizontal, notar que i e j estao trocados no if
+        for(int i =0; i<3; i++) {
+	    for(int j=0; j<2; j++) {
+		int jj = j+1;
+		if(matriz[j][i] == matriz[jj][i]) return true;
+	    }
+	}
+    }
 }
 
 public class Game2048 {
@@ -238,7 +271,7 @@ public class Game2048 {
                 int y = rgen.nextInt(4);
 
                 if (tabuleiro.matriz[x][y] == 0) {
-                    tabuleiro.matriz[x][y] = 2;
+                    tabuleiro.matriz[x][y] = (Math.random() >= .9 ? 4 : 2);
                     flag = false;
                 }
             }
