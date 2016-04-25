@@ -1,6 +1,5 @@
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -11,29 +10,67 @@ public class Buffer {
     protected List<StringBuilder> lineList; //lineList.get(3) obtem o quarto elemento da lista
     private int cursorRow, cursorCol;
 
-    // inicialização
+    /**
+     * Metodo construtor para um documento vazio
+     */
     public Buffer() {
         lineList = new ArrayList<StringBuilder>();
         lineList.add(new StringBuilder(""));
         cursorRow = 0;
         cursorCol = 0;
     }
+    
+    /**
+     * Metodo contrutor para um documento com uma string tmp (que pode conter \n)
+     * @param tmp
+     */
+    public Buffer(String tmp) {
+    	String stringArray[] = tmp.split("\n");
+    	lineList = new ArrayList<StringBuilder>();
+    	
+    	for(String string : stringArray) {
+    		lineList.add(new StringBuilder(string));
+    	}
+    	cursorRow = 0;
+    	cursorCol = 0;
+    }
 
-    // inserir carater
-    public void insert(char c) {
+    /**
+     * Insere caracteres, caso particular do insertString
+     * @param c
+     * @throws LineInputException
+     */
+    public void insert(char c) throws LineInputException {
     	if(c=='\n') {
     		breakLine();
-    	} else { //talvez seja preciso adiciona trycatch
+    	} else {
     		insertString(Character.toString(c));
     	}
     }
-    //inserior string
-    public void insertString(String tmp) {
-    	lineList.get(cursorRow).insert(cursorCol, tmp);
-		cursorCol += tmp.length();
+    
+    /**
+     * Insere uma string, precondicao de que o texto nao deve conter \n
+     * @param tmp
+     * @throws LineInputException
+     */
+    public void insertString(String tmp) throws LineInputException {
+    	String stringsArray[] = tmp.split("\n");
+    	
+//    	for(String string : stringsArray) {
+//    		lineList.get(cursorRow).insert(cursorCol, string);
+//        	cursorCol += tmp.length();
+//    	}
+    	if(stringsArray.length > 1) {
+    		throw new LineInputException();
+    	} else {
+    		lineList.get(cursorRow).insert(cursorCol, tmp);
+        	cursorCol += tmp.length();
+    	}
     }
-    // apagar carater
-
+    
+    /**
+     * Elimina um caracter imediatamente antes do cursor (backspace)
+     */
     public void delete() {
         if(cursorCol == 0 && cursorRow != 0) {
             lineList.get(cursorRow-1).append(lineList.get(cursorRow));
@@ -46,28 +83,43 @@ public class Buffer {
             moveLeft();
         }
     }
-    // mover o cursor
+    
+    /**
+     * Move o cursor para cima
+     */
     public void moveUp() {
     	//se a linha de cima for menor, salta para a posicao do final dela
-    	if(cursorRow > 0)
+    	if(cursorRow > 0) {
     		cursorCol = Math.min(cursorCol, lineList.get(cursorRow-1).length());
+    		cursorRow--;
+    	}
     }
 
+    /**
+     * Move o cursor para a direita
+     */
     public void moveRight() {
-    	if(cursorCol == lineList.get(cursorRow).length() && cursorRow != lineList.size()-1) {
+    	if(cursorCol == lineList.get(cursorRow).length() && cursorRow < lineList.size()-1) {
     		cursorCol=0;
     		cursorRow++;
-    	} else if(cursorCol != lineList.get(cursorRow).length()) {
+    	} else if(cursorCol < lineList.get(cursorRow).length()) {
     		cursorCol++;
     	}
     }
 
+    /**
+     * Move o cursor para baixo
+     */
     public void moveDown() {
     	if(cursorRow < lineList.size() -1) {
     		cursorCol = Math.min(cursorCol, lineList.get(cursorRow+1).length());
+    		cursorRow++;
     	}
     }
 
+    /**
+     * Move o cursor para a esquerda
+     */
     public void moveLeft() {
     	if(cursorCol == 0 && cursorRow != 0) {
     		cursorCol=lineList.get(cursorRow-1).length();
@@ -77,11 +129,18 @@ public class Buffer {
     	}
     }
 
+    /**
+     * Devolve o numero de linhas existentes na lista de linhas logicas
+     * @return
+     */
     public int getNLines() {
-    	//ter atencao que as linha comecam no 0
+    	//ter atencao que o index das linhas comeca no 0
         return lineList.size();
     }
     
+    /**
+     * Quebra a linha na posicao do cursor (breakline, enter)
+     */
     public void breakLine() {
     	//guardar string da pos cursor ate ao fim da linha
     	String rest = lineList.get(cursorRow).substring(cursorCol,lineList.get(cursorRow).length());
@@ -94,32 +153,61 @@ public class Buffer {
     	cursorCol=0;
     }
 
-    public StringBuilder getLine(int nLine) { //ou toString se quisermos retornar strings simples
+    /**
+     * Devolve uma string correspondente a linhaLogica com index pedido
+     * @param nLineIndex
+     * @return
+     */
+    public String getLine(int nLineIndex) {
         //ter atencao que as linha comecam no 0
-    	return lineList.get(nLine);
+    	return lineList.get(nLineIndex).toString();
     }
     
+    /**
+     * Devolve coluna corrente do cursor, comeca em 0
+     * @return
+     */
     public int getcursorCol() {
     	return cursorCol;
     }
     
+    /**
+     * Devolve linha corrente do cursor, comeca em 0
+     * @return
+     */
     public int getcursorRow() {
     	return cursorRow;
     }
     
+    /**
+     * Devolve booleano conforme a posicao pedida e valida ou nao
+     * @param row
+     * @param col
+     * @return
+     */
     public boolean validPosition(int row, int col) {
-    	if(0 <= col && col <= lineList.get(row).length())
-    		if(0 <= row && row <= lineList.size()-1)
-    			return true;
+    	try {
+    		if(0 <= col && col <= lineList.get(row).length())
+        		if(0 <= row && row <= lineList.size()-1)
+        			return true;
+		} catch (IndexOutOfBoundsException e) {
+			return false;
+		}
     	return false;
     }
     
-    public void setCursor(int row, int col) throws IOException {
+    /**
+     * Se a posicao pedida for valida actualiza o cursor
+     * @param row
+     * @param col
+     * @throws InvalidCursorPosition
+     */
+    public void setCursor(int row, int col) throws InvalidCursorPosition {
     	if(validPosition(row,col)) {
     		cursorRow = row;
     		cursorCol = col;
     	} else {
-    		throw new IOException();
+    		throw new InvalidCursorPosition();
     	}
     }
 }
