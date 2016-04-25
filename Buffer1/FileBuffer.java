@@ -10,6 +10,14 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
+
+/**
+ * Incompleto, so para fase 2 do Trabalho Pratico
+ * 
+ * 
+ * @author azthec
+ *
+ */
 public class FileBuffer extends Buffer {
 	private Path savePath;
 	// null= não definido
@@ -62,7 +70,7 @@ public class FileBuffer extends Buffer {
 
 	// abrir
 	public void open(Path path)
-			throws IOException { 
+			throws IOException, LineInputException { 
 		savePath = path;
 		File file = new File(savePath.toString());
 
@@ -92,14 +100,14 @@ public class FileBuffer extends Buffer {
 	}
 
 	@Override
-	public void insert(char c) {
+	public void insert(char c) throws LineInputException {
 		super.insert(c);
 		modified = true; // marcar modificação
 	}
 	// análogo para outros modificadores
 
 	@Override
-	public void insertString(String tmp) {
+	public void insertString(String tmp) throws LineInputException {
 			//throws InvalidContentException {
 		//try {
 		super.insertString(tmp);
