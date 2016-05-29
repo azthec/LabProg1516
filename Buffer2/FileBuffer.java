@@ -10,11 +10,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 
 /**
- * Incompleto, so para fase 2 do Trabalho Pratico
+ * Completo!
  * 
  * 
  * @author azthec
@@ -30,7 +32,21 @@ public class FileBuffer extends Buffer {
 	FileBuffer() { //para ter construtor
 		super();
 	}
+	
+	FileBuffer(String tmp) {
+		super(tmp);
+	}
 
+	/**
+	 * Set file save path for buffer
+	 * @param p
+	 */
+	public void setSavePath(Path p)
+	{
+		this.savePath = p;
+	}
+	
+	
 	// gravar
 	public void save(Path saveLoc) throws IOException {
 		savePath = saveLoc;
@@ -68,41 +84,20 @@ public class FileBuffer extends Buffer {
 
 	}
 
-	public void saveAs(Path path)
-			throws IOException { 
-		savePath = path;
-		save();
-	}
-
 	// abrir
-	public void open(Path path)
-			throws IOException, LineInputException { 
-		savePath = path;
-		File file = new File(savePath.toString());
+	public void open(Path path) throws IOException, LineInputException {
+		savePath=path;
+		BufferedReader reader = null;
+		String current_line = null;
 
-		if(!file.exists()){
-			try {
-				file.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} else {
+		reader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
 
-			String line;
-			try (
-					InputStream fis = new FileInputStream(file);
-					InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
-					BufferedReader br = new BufferedReader(isr);
-					) {
-				while ((line = br.readLine()) != null) {
-					line = line.trim();
-					insertString(line);
-					breakLine();
-				}
-				br.close(); //loses the stream according to javadoc for BufferedReader and InputStreamReader as well as FileReader
-			}
+		while((current_line = reader.readLine()) != null)
+		{
+			this.insertString(current_line);
+			this.breakLine();
 		}
-		savePath = file.toPath();
+		reader.close();
 	}
 
 	@Override
