@@ -1,4 +1,4 @@
-# Laboratório Programação FCUP 2015/2016
+# LaboratÃ³rio ProgramaÃ§Ã£o FCUP 2015/2016
 
 Rui Miguel & Rui Balau
 
@@ -12,7 +12,7 @@ CustomExceptions.java
 	Ficheiro com classes para custom errors
 
 FileBuffer.java
-	Ficheiro para gravar / ler de ficheiros, incompleto e nao avaliado na parte 1 do trabalho.
+	Ficheiro para gravar / ler de ficheiros
 	
 
 BufferView
